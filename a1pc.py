@@ -23,13 +23,16 @@ print(request)
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((input_request[4:], 80))
 serveripaddr = s.getsockname()[0].encode('utf-8')
-print(b"IP Address, Port of the Server: " + serveripaddr + b" ,80")
+serverport = s.getsockname()[1]
+print(b"IP Address, Port of the Server: " + serveripaddr + b" ,80")#get the port
+myipaddr = socket.gethostbyname(socket.gethostname())
+print("IP Address, Port of this client" + myipaddr + ", " + str(serverport))
 
 s.send(request)
 
 #process the response from the website
-result = s.recv(10000)
+result = s.recv(1000)
 while (len(result) > 0):
-    print(result)
+    #print(result)
     result = s.recv(10000)
 #chase process if result contains a response other than 200 OK
