@@ -10,18 +10,22 @@ print(b"HTTP Protocol Analyzer, Written by <Thomas Evetts>, <43529610>")
 input_request = input(b"\r\nURL Requested:")
 input_request = input_request.encode('utf-8')
 
-print(input_request[2:])
+"proceeding the '/'"
+pre_index = input_request.find(b"/")
+pre_request = b""
+if(pre_index != -1):
+    pre_request = input_request[pre_index+1:]
+    request = b"GET /" + pre_request + b" " + b"HTTP/1.1\r\nHost: " + input_request[:pre_index] + b"\r\n\r\n"
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((input_request[:pre_index], 80))
+else:
+    request = b"GET / HTTP/1.1\r\nHost: " + input_request + b"\r\n\r\n"
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((input_request, 80))
 
-#append the get / http.....
-request = b"GET / HTTP/1.1\nHost: " + input_request + b"\n\n"
 print(request)
-#get the request from the user
 
 
-#request = b"GET / HTTP/1.1\nHost: www.google.com\n\n" #get this from cmd line
-#socket setup
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((input_request[4:], 80))
 serveripaddr = s.getsockname()[0].encode('utf-8')
 serverport = s.getsockname()[1]
 print(b"IP Address, Port of the Server: " + serveripaddr + b" ,80")#get the port
@@ -167,6 +171,6 @@ elif(status == 599):
     print("Reply Code Meaning: Network Connect Timeout Error")
 
 while (len(result) > 0):
-    #print(result)
+    print(result)
     result = s.recv(10000)
 #chase process if result contains a response other than 200 OK
