@@ -176,16 +176,23 @@ while(status == 301 or status == 302):
         print("Reply Code Meaning: Network Connect Timeout Error")
 
     
-    #chase process if result contains a response other than 200 OK
-    print(result[result.find(b"Location: http://")+17:])
-    index = int(result.find(b"Location: http://")+17)
-    print(index)
-    print(result[index:].find(b"\r\n"))
-    index_2 = int(result[index:].find(b"\r\n"))
-    input_request = result[index:index+index_2]
-    #input_request = result[index:result[index:].find(b"\r\n")]
-    print(input_request)
 
+    
+    
+    #chase process if result contains a response other than 200 OK
+    if(status == 301 or 302):
+        index = int(result.find(b"Location: http://")+17)
+        index_2 = int(result[index:].find(b"\r\n"))
+        input_request = result[index:index+index_2]
+        #input_request = result[index:result[index:].find(b"\r\n")]
+        #print(input_request)
+    if(status == 200):
+        #process time
+        index = int(result.find(b"Date: "))
+        index_2 = int(result[index:].find(b"GMT\r\n"))
+        time = result[index:index+index_2]
+        print("time")
+        print(time)
 ##    while (len(result) > 0):
-##        #print(result.decode())
+##        print(result.decode())
 ##        result = s.recv(10000)
