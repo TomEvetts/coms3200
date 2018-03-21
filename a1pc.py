@@ -191,8 +191,9 @@ while(status == 301 or status == 302):
         index = int(result.find(b"Date: "))
         index_2 = int(result[index:].find(b"GMT\r\n"))
         time = result[index:index+index_2]
-        print("time")
+        
         print(time)
+        #process time to be AEST which is plus 18
 ##    while (len(result) > 0):
 ##        print(result.decode())
 ##        result = s.recv(10000)
