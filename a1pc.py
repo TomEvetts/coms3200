@@ -206,7 +206,7 @@ while(status == 301 or status == 1000 or status == 2000):
             input_request = result[index:index+index_2]
         #input_request = result[index:result[index:].find(b"\r\n")]
         #print(pre_request)
-    if(status == 200 or status == 302):
+    if(status == 200 or status == 302 or status == 404):
         #process time
         index = int(result.find(b"Date: "))
         index_2 = int(result[index:].find(b"GMT\r\n"))
