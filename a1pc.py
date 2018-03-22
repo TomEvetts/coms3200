@@ -6,27 +6,34 @@ d = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
 monthDict={1:"Jan", 2:"Feb", 3:"Mar", 4:"Apr", 5:"May", 6:"Jun", 7:"Jul", 8:"Aug", 9:"Sep", 10:"Oct", 11:"Nov", 12:"Dec"}
 
 #print header to assignment
-print(b"HTTP Protocol Analyzer, Written by <Thomas Evetts>, <43529610>")
+print("HTTP Protocol Analyzer, Written by <Thomas Evetts>, <43529610>")
 
 #print(b"\r\nURL Requested:")
-input_request = input(b"\r\nURL Requested:")
+input_request = input("\r\nURL Requested:")
 input_request = input_request.encode('utf-8')
-status =301
-while(status == 301 or status == 302):
-    "proceeding the '/'"
-    pre_index = input_request.find(b"/")
-    pre_request = b""
-    if(pre_index != -1):
-        pre_request = input_request[pre_index+1:]
+status =1000
+while(status == 301 or status == 1000 or status == 2000):
+    if(status == 2000):
+        print("Moved to: " + input_request[:pre_index].decode()+pre_request.decode())
         request = b"GET /" + pre_request + b" " + b"HTTP/1.1\r\nHost: " + input_request[:pre_index] + b"\r\n\r\n"
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((input_request[:pre_index], 80))
     else:
-        request = b"GET / HTTP/1.1\r\nHost: " + input_request + b"\r\n\r\n"
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((input_request, 80))
+        if(status == 301):
+            print("Moved to: "+input_request.decode())
+        
+        "proceeding the '/'"
+        pre_index = input_request.find(b"/")
+        pre_request = b""
+        if(pre_index != -1):
+            pre_request = input_request[pre_index+1:]
+            request = b"GET /" + pre_request + b" " + b"HTTP/1.1\r\nHost: " + input_request[:pre_index] + b"\r\n\r\n"
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((input_request[:pre_index], 80))
+        else:
+            request = b"GET / HTTP/1.1\r\nHost: " + input_request + b"\r\n\r\n"
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((input_request, 80))
 
-    print(request)
+        #print(request)
 
 
     serveripaddr = s.getsockname()[0]
@@ -44,9 +51,8 @@ while(status == 301 or status == 302):
 
     #process the response from the website
     result = s.recv(1000)
-    print(b"Reply Code: "+result[9:12])
+    print("Reply Code: "+result[9:12].decode())
     status = int(result[9:12])
-    print(status)
 
     if(status == 100):
         print("Reply Code Meaning: Continue")
@@ -183,13 +189,24 @@ while(status == 301 or status == 302):
     
     
     #chase process if result contains a response other than 200 OK
-    if(status == 301 or 302):
-        index = int(result.find(b"Location: http://")+17)
+    if(status == 302):#deal with these differently!!!
+        index = int(result.find(b"Location: ")+10)
         index_2 = int(result[index:].find(b"\r\n"))
-        input_request = result[index:index+index_2]
+        pre_request = result[index:index+index_2]
+    if(status == 301):#deal with these differently!!!
+        index = int(result.find(b"Location: http://")+17)
+        if(index == 16):
+            index = int(result.find(b"Location: ")+10)
+            index_2 = int(result[index:].find(b"\r\n"))
+            pre_request = result[index:index+index_2]
+            status = 2000
+            
+        else:
+            index_2 = int(result[index:].find(b"\r\n"))
+            input_request = result[index:index+index_2]
         #input_request = result[index:result[index:].find(b"\r\n")]
-        #print(input_request)
-    if(status == 200):
+        #print(pre_request)
+    if(status == 200 or status == 302):
         #process time
         index = int(result.find(b"Date: "))
         index_2 = int(result[index:].find(b"GMT\r\n"))
@@ -206,8 +223,8 @@ while(status == 301 or status == 302):
         month_str = time[14:17]
         year_int = int(time[18:22])
         hours = int(time[23:25])
-        minutes = int(time[26:28])
-        seconds = int(time[29:31])
+        minutes = (time[26:28])
+        seconds = (time[29:31])
         
         #find month index in our dictionary
         
@@ -237,8 +254,62 @@ while(status == 301 or status == 302):
                 find_month = 1
                 year_int +=1
         #print the date and time string
-        print("Date: "+ d[find_index]+", "+str(day_int) + " " +str(monthDict[find_month]) + " " + str(year_int) + " " + str(hours)+ ":" + str(minutes)+ ":"+str(seconds))
-        #process time to be AEST which is plus 18
+        print("Date: "+ d[find_index]+", "+str(day_int) + " " +str(monthDict[find_month]) + " " + str(year_int) + " " + str(hours)+ ":" + minutes.decode()+ ":"+seconds.decode() + " AEST")
+        
+
+        if((result.find(b"Last-Modified:"))!= -1):
+            index = int(result.find(b"Last-Modified:"))
+            index_2 = int(result[index:].find(b"\r\n"))
+            day = result[index+15:index+index_2]
+            find_index = 0
+            find_month = 1
+            while(day.find(d[find_index].encode('utf-8'))):
+              find_index+=1
+            
+            day_int = int(day[4:7])
+            month_str = day[8:11]
+            year_int = int(day[12:16])
+            hours = int(day[17:19])
+            minutes = (day[20:22])
+            seconds = (day[23:25])
+            #find month index in our dictionary
+            while(month_str.find(monthDict[find_month].encode('utf-8'))):
+              find_month +=1
+        
+            hours = hours+10
+            if(hours >= 24):
+                hours = hours - 24
+                day = d[(find_index+1)%7]
+                day_int +=1
+                #deal wit months
+                if(not(monthDict[find_month].encode('utf-8').find(b"Sep" or "Apr" or "Jun" or "Nov"))):
+                    if(day_int>30):
+                        day_int = 1
+                        find_month += 1
+                elif(not(monthDict[find_month].encode('utf-8').find(b"Jan" or "Mar" or "May" or "Jul" or "Aug" or "Oct" or "Dec"))):
+                    if(day_int>31):
+                        day_int = 1
+                        find_month+=1
+                elif(not(monthDict[find_month].encode('utf-8').find(b"Feb"))):
+                    if(day_int>28):
+                        day_int = 1
+                        find_month+=1
+                        
+                if(find_month>=12):
+                    find_month = 1
+                    year_int +=1
+            #print the date and time string
+            print("Last-Modified: "+ d[find_index]+", "+str(day_int) + " " +str(monthDict[find_month]) + " " + str(year_int) + " " + str(hours)+ ":" + minutes.decode()+ ":"+seconds.decode() + " AEST")
+        else:
+            print("Last-Modified: not specified")  
+            
+        if((result.find(b"Content-Type:"))!= -1):
+            index = int(result.find(b"Content-Type:"))
+            index_2 = int(result[index:].find(b"\r\n"))
+            print("Content-Encoding: "+result[index+14:index+index_2].decode())
+        else:
+            print("Content-Encoding: none")
+            #print("Last-Modified: "+result[index+15:index+index_2].decode())
 ##    while (len(result) > 0):
-##        print(result.decode())
+##        print(result)
 ##        result = s.recv(10000)
