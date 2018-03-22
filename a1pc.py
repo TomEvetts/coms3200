@@ -2,6 +2,9 @@
 
 import socket
 
+d = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
+monthDict={1:"Jan", 2:"Feb", 3:"Mar", 4:"Apr", 5:"May", 6:"Jun", 7:"Jul", 8:"Aug", 9:"Sep", 10:"Oct", 11:"Nov", 12:"Dec"}
+
 #print header to assignment
 print(b"HTTP Protocol Analyzer, Written by <Thomas Evetts>, <43529610>")
 
@@ -191,8 +194,50 @@ while(status == 301 or status == 302):
         index = int(result.find(b"Date: "))
         index_2 = int(result[index:].find(b"GMT\r\n"))
         time = result[index:index+index_2]
+        #convirt time to integers
+        day = time[6:9]
+        find_index = 0
+        find_month = 1
+        #find day index our dictionary d = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
+        while(day.find(d[find_index].encode('utf-8'))):
+              find_index+=1
         
-        print(time)
+        day_int = int(time[11:13])
+        month_str = time[14:17]
+        year_int = int(time[18:22])
+        hours = int(time[23:25])
+        minutes = int(time[26:28])
+        seconds = int(time[29:31])
+        
+        #find month index in our dictionary
+        
+        while(month_str.find(monthDict[find_month].encode('utf-8'))):
+              find_month +=1
+        
+        hours = hours+10
+        if(hours >= 24):
+            hours = hours - 24
+            day = d[(find_index+1)%7]
+            day_int +=1
+            #deal wit months
+            if(not(monthDict[find_month].encode('utf-8').find(b"Sep" or "Apr" or "Jun" or "Nov"))):
+                if(day_int>30):
+                    day_int = 1
+                    find_month += 1
+            elif(not(monthDict[find_month].encode('utf-8').find(b"Jan" or "Mar" or "May" or "Jul" or "Aug" or "Oct" or "Dec"))):
+                if(day_int>31):
+                    day_int = 1
+                    find_month+=1
+            elif(not(monthDict[find_month].encode('utf-8').find(b"Feb"))):
+                if(day_int>28):
+                    day_int = 1
+                    find_month+=1
+                    
+            if(find_month>=12):
+                find_month = 1
+                year_int +=1
+        #print the date and time string
+        print("Date: "+ d[find_index]+", "+str(day_int) + " " +str(monthDict[find_month]) + " " + str(year_int) + " " + str(hours)+ ":" + str(minutes)+ ":"+str(seconds))
         #process time to be AEST which is plus 18
 ##    while (len(result) > 0):
 ##        print(result.decode())
