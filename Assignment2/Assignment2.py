@@ -25,6 +25,16 @@ def format_hex(hex):
     pairs = [" ".join(octets[i:i+2]) for i in range(0, len(octets), 2)]
     return "\n".join(pairs)
 
+def process_input(message, DNS_type):
+    message_out = ""
+    if DNS_type:
+        # split up by '.' characters
+        message = message.split('.')
+        for i in range(len(message)):
+            message_out = ' '.join(str(hex(ord(c))[2:]) for c in message[i])
+            print(message_out)
+
+        # process the URLs into Hex and pre-append the numbers before the dots
 
 message = "AA AA 01 00 00 01 00 00 00 00 00 00 " \
 "07 65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 01 00 01"
@@ -42,8 +52,14 @@ message_ipaddr_rev = "d6 f8 01 00 00 01" \
 message_2 = "00 01 01 00 00 01 00 00  00 00 00 00 03 77 77 77" \
             "06 67 6f 6f 67 6c 65 03  63 6f 6d 00 00 01 00 01"
 
-response = send_udp_message(message, "8.8.8.8", 53) # "2001:4860:4860::8888" ipv6 server
+response = send_udp_message(message_ipaddr_rev, "8.8.8.8", 53) # "2001:4860:4860::8888" ipv6 server
 
-#process the input from a given string
+#process the input from a given string simulated by a string
+
+input0 = "eait.uq.edu.au"
+input1 = "remote.labs.eait.uq.edu.au"
+input2 = "microsoft.com"
+input3 = "130.102.79.33"
+process_input(input0, 1)
 
 print(format_hex(response))
