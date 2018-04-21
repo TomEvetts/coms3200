@@ -116,12 +116,31 @@ def process_canonical(response, domain_name):
         # +18 from the c00c
         index_1 = index_1 + 20
         #next 2 characters represent the number of bytes in the name (in hex)
-        host = int(response[index_1:index_1+2], 16)
-        host = host * 2
-        host_name = response[index_1+2:index_1+2+host]
+        stop = ""
+        host_name_extracted = ""
+        while "c0" not in stop:
+            host = int(response[index_1:index_1+2], 16)
+            host = host * 2
+            host_name = response[index_1+2:index_1+2+host]
 
-        host_name_extracted = convert_hex_ascii(host_name)
-        print("The host name " + host_name_extracted + "." + rest)
+            host_name_extracted_temp = convert_hex_ascii(host_name)
+
+            index_1 = index_1 + 2 + host
+
+            host_name_extracted = host_name_extracted + convert_hex_ascii(host_name) + "."
+            print(host_name_extracted_temp)
+
+
+            stop = response[index_1:index_1 + 2]
+
+        # host = int(response[index_1:index_1 + 2], 16)
+        # host = host * 2
+        # host_name = response[index_1 + 2:index_1 + 2 + host]
+        # # stop = host
+        # index_1 = index_1 + 2 + host
+        # print(response[index_1:index_1 + 2])
+        # host_name_extracted = host_name_extracted + "." +convert_hex_ascii(host_name)
+        print("The host name " + host_name_extracted + rest)
 
 
 
@@ -147,9 +166,9 @@ input1 = "remote.labs.eait.uq.edu.au"
 input2 = "microsoft.com"
 input3 = "130.102.71.160"
 input4 = "130.102.79.33"
-input5 = "tomevetts1@gmail.com"
+input5 = "mail.google.com"
 
-inpuuut = input2
+inpuuut = input1
 dns_flag = 1
 
 response = send_udp_message(process_input(inpuuut, dns_flag, 0), "8.8.8.8", 53)
