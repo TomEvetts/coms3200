@@ -103,7 +103,7 @@ def convert_hex_ascii(host_name):
 def process_canonical(response, domain_name):
     index_1 = response.find("c00c")
     index_1 = index_1 + 4
-    print(index_1)
+    #print(index_1)
     message_flag = int(response[index_1:index_1+4])
     if(message_flag == 1):
         # no domain to process
@@ -128,7 +128,7 @@ def process_canonical(response, domain_name):
             index_1 = index_1 + 2 + host
 
             host_name_extracted = host_name_extracted + convert_hex_ascii(host_name) + "."
-            print(host_name_extracted_temp)
+            #print(host_name_extracted_temp)
 
 
             stop = response[index_1:index_1 + 2]
@@ -140,7 +140,28 @@ def process_canonical(response, domain_name):
         # index_1 = index_1 + 2 + host
         # print(response[index_1:index_1 + 2])
         # host_name_extracted = host_name_extracted + "." +convert_hex_ascii(host_name)
-        print("The host name " + host_name_extracted + rest)
+        print("The canonical? host name " + host_name_extracted + rest)
+
+def process_host_name_reverse(response):
+    #seek to the 'c00c'
+    index_1 = response.find("c00c")
+    index_1 = index_1 + 24
+    stop = ""
+    host_name_extracted = ""
+    while "00" not in stop:
+        host = int(response[index_1:index_1 + 2], 16)
+        host = host * 2
+        host_name = response[index_1 + 2:index_1 + 2 + host]
+
+        host_name_extracted_temp = convert_hex_ascii(host_name)
+
+        index_1 = index_1 + 2 + host
+
+        host_name_extracted = host_name_extracted + convert_hex_ascii(host_name) + "."
+        #print(host_name_extracted_temp)
+
+        stop = response[index_1:index_1 + 2]
+    print("The Host Name " + host_name_extracted)
 
 
 
@@ -177,7 +198,7 @@ response = send_udp_message(process_input(inpuuut, dns_flag, 0), "8.8.8.8", 53)
 process_canonical(response, inpuuut)
 
 process_response_ipv4(response,1, process_input(inpuuut, dns_flag, 0))
-print(format_hex(response))
+#print(format_hex(response))
 
 response = send_udp_message(process_input(inpuuut, dns_flag, 1), "8.8.8.8", 53)
 
@@ -189,15 +210,17 @@ process_response_ipv4(response,0, process_input(inpuuut, dns_flag, 1))
 
 #process the input from a given string simulated by a string
 
-print(format_hex(response))
+#print(format_hex(response))
 
 
 inpuuut = input4
 dns_flag = 0
-print(process_input(inpuuut, dns_flag, 0))
+#print(process_input(inpuuut, dns_flag, 0))
 response = send_udp_message(process_input(inpuuut, dns_flag, 0), "8.8.8.8", 53) # "2001:4860:4860::8888" ipv6 server
 
 # process the response to extract the information
-process_response_ipv4(response,1, process_input(inpuuut, dns_flag, 0))
+#process_response_ipv4(response,1, process_input(inpuuut, dns_flag, 0))
 
-print(format_hex(response))
+process_host_name_reverse(response)
+
+#print(format_hex(response))
