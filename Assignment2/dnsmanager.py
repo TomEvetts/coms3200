@@ -44,7 +44,7 @@ def process_input(message, DNS_type, ipv6_DNS):
         final = "00 00 1c 00 01"
         message_return = initial + message_return + final
     else:
-        if DNS_type:
+        if DNS_type == 1:
             # split up by '.' characters
             message = message.split('.')
             for i in range(len(message)):
@@ -59,6 +59,22 @@ def process_input(message, DNS_type, ipv6_DNS):
             #now add the normal header to this
             initial = "AA AA 01 00 00 01 00 00 00 00 00 00 "
             final = "00 00 01 00 01"
+            message_return = initial + message_return + final
+        elif DNS_type == 2:
+            # split up by '.' characters
+            message = message.split('.')
+            for i in range(len(message)):
+                message_out = ' '.join(str(hex(ord(c))[2:]) for c in message[i])
+                number_characters = (str(hex(len(message[i]))[2:]) + " ")
+                if (len(number_characters) < 3):
+                    # add a 0
+                    number_characters = "0" + number_characters
+                message_out = number_characters + message_out
+                message_return = message_return + message_out + " "
+
+            # now add the normal header to this
+            initial = "AA AA 01 00 00 01 00 00 00 00 00 00 "
+            final = "00 00 0f 00 01" # this one does the mail server query
             message_return = initial + message_return + final
         else:
             # split up by '.' characters
@@ -149,6 +165,12 @@ def process_canonical(response, domain_name):
         # host_name_extracted = host_name_extracted + "." +convert_hex_ascii(host_name)
         print("The canonical? host name " + host_name_extracted + rest)
         return ("The canonical? host name " + host_name_extracted + rest)
+
+def process_mailserver(response):
+    index_1 = response.find("c00c")
+    index_1 = index_1 + 4
+    # print(index_1)
+    message_flag = int(response[index_1:index_1 + 4])
 
 def process_host_name_reverse(response):
     #seek to the 'c00c'

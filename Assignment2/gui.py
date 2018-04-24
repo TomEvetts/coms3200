@@ -102,6 +102,15 @@ class Form:
 
         self.text.insert(END, dns.process_response_ipv4(response, 0, dns.process_input(inpuuut, dns_flag, 1)) + "\n")
 
+        dns_flag = 2
+
+        response = dns.send_udp_message(dns.process_input(inpuuut, dns_flag, 0), "8.8.8.8", 53)
+
+        # process the response to extract the information
+
+        print( response )
+        #self.text.insert(END, dns.process_canonical(response, inpuuut) + "\n")
+
 
     def send_ipv4(self):
 
