@@ -111,6 +111,8 @@ class Form:
         print( response )
         #self.text.insert(END, dns.process_canonical(response, inpuuut) + "\n")
 
+        dns.process_mailserver(response, inpuuut)
+
 
     def send_ipv4(self):
 

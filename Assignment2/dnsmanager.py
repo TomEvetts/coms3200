@@ -166,11 +166,46 @@ def process_canonical(response, domain_name):
         print("The canonical? host name " + host_name_extracted + rest)
         return ("The canonical? host name " + host_name_extracted + rest)
 
-def process_mailserver(response):
+
+def process_mailserver(response, domain_name):
     index_1 = response.find("c00c")
     index_1 = index_1 + 4
     # print(index_1)
-    message_flag = int(response[index_1:index_1 + 4])
+    message_flag = int(response[index_1:index_1 + 4], 16)
+    #type variable is 0x00 0f to denote mail server
+    if (message_flag == 0xf):
+        word, space, rest = domain_name.partition('.')
+        # extract the host name
+        # +18 from the c00c
+        index_1 = index_1 + 24
+        # next 2 characters represent the number of bytes in the name (in hex)
+        stop = ""
+        host_name_extracted = ""
+        while "c0" not in stop:
+            host = int(response[index_1:index_1 + 2], 16)
+            host = host * 2
+            host_name = response[index_1 + 2:index_1 + 2 + host]
+
+            host_name_extracted_temp = convert_hex_ascii(host_name)
+
+            index_1 = index_1 + 2 + host
+
+            host_name_extracted = host_name_extracted + convert_hex_ascii(host_name) + "."
+            # print(host_name_extracted_temp)
+
+            stop = response[index_1:index_1 + 2]
+
+        # host = int(response[index_1:index_1 + 2], 16)
+        # host = host * 2
+        # host_name = response[index_1 + 2:index_1 + 2 + host]
+        # # stop = host
+        # index_1 = index_1 + 2 + host
+        # print(response[index_1:index_1 + 2])
+        # host_name_extracted = host_name_extracted + "." +convert_hex_ascii(host_name)
+        print("The mailserver " + host_name_extracted + rest)
+        return (host_name_extracted + rest)
+
+
 
 def process_host_name_reverse(response):
     #seek to the 'c00c'
