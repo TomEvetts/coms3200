@@ -61,6 +61,7 @@ def process_input(message, DNS_type, ipv6_DNS):
             final = "00 00 01 00 01"
             message_return = initial + message_return + final
         elif DNS_type == 2:
+            print("yeah doing this")
             # split up by '.' characters
             message = message.split('.')
             for i in range(len(message)):
@@ -94,7 +95,7 @@ def process_input(message, DNS_type, ipv6_DNS):
             final = "07 69 6e 2d 61 64 64 72 04 61 72 " \
                     "70 61 00 00 0c 00 01"
             message_return = initial + message_return + final
-
+    print(message_return)
     return message_return
         # process the URLs into Hex and pre-append the numbers before the dots
 
@@ -106,20 +107,25 @@ def process_response_ipv4(response, DNS_type, previous_message):
         return ("The IPv4 address "+ str(int(response[-8:-6], 16)) + "." + str(int(response[-6:-4], 16)) + "." +
               str(int(response[-4:-2], 16)) + "." + str(int(response[-2:], 16)))
     else:
-        print("The IPv6 address " + str(response[-32:-28]) + ":" + str(response[-28:-24]) + ":" + str(response[-24:-20])
-        + ":" + str(response[-20:-16]) + ":" + str(response[-16:-12]) + ":" + str(response[-12:-8])+ ":" +
-        str(response[-8:-4]) + ":" + str(response[-4:]))
+        print("ipv6" + response)
+        index_1 = response.find("c00c")
+        index_1 = index_1 + 4
+        type = response[index_1:index_1+4]
+        print("type = " + type)
+        if type.find("001c") != -1:
+            print("The IPv6 address " + str(response[-32:-28]) + ":" + str(response[-28:-24]) + ":" + str(response[-24:-20])
+            + ":" + str(response[-20:-16]) + ":" + str(response[-16:-12]) + ":" + str(response[-12:-8])+ ":" +
+            str(response[-8:-4]) + ":" + str(response[-4:]))
 
-        return ("The IPv6 address " + str(response[-32:-28]) + ":" + str(response[-28:-24]) + ":" + str(response[-24:-20])
-        + ":" + str(response[-20:-16]) + ":" + str(response[-16:-12]) + ":" + str(response[-12:-8])+ ":" +
-        str(response[-8:-4]) + ":" + str(response[-4:]))
+            return ("The IPv6 address " + str(response[-32:-28]) + ":" + str(response[-28:-24]) + ":" + str(response[-24:-20])
+            + ":" + str(response[-20:-16]) + ":" + str(response[-16:-12]) + ":" + str(response[-12:-8])+ ":" +
+            str(response[-8:-4]) + ":" + str(response[-4:]))
+        return "No IPV6 found"
 
 
 def convert_hex_ascii(host_name):
 
     return ''.join([chr(int(''.join(c), 16)) for c in zip(host_name[0::2], host_name[1::2])])
-
-
 
 
 def process_canonical(response, domain_name):
@@ -163,8 +169,8 @@ def process_canonical(response, domain_name):
         # index_1 = index_1 + 2 + host
         # print(response[index_1:index_1 + 2])
         # host_name_extracted = host_name_extracted + "." +convert_hex_ascii(host_name)
-        print("The canonical? host name " + host_name_extracted + rest)
-        return ("The canonical? host name " + host_name_extracted + rest)
+        print("The canonical name: " + host_name_extracted + rest)
+        return ("The host name: " + domain_name + "\n" + "The canonical name: " + host_name_extracted + rest)
 
 
 def process_mailserver(response, domain_name):

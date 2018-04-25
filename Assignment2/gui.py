@@ -92,7 +92,7 @@ class Form:
 
         # process the response to extract the information
 
-        self.text.insert(END, dns.process_canonical(response, inpuuut) + "\n")
+        self.text.insert(END, "\n" + dns.process_canonical(response, inpuuut) + "\n")
 
         self.text.insert(END, dns.process_response_ipv4(response, 1, dns.process_input(inpuuut, dns_flag, 0)) + "\n")
 
@@ -111,7 +111,25 @@ class Form:
         print( response )
         #self.text.insert(END, dns.process_canonical(response, inpuuut) + "\n")
 
-        dns.process_mailserver(response, inpuuut)
+        self.text.insert(END, "Mail Server Name: " + dns.process_mailserver(response, inpuuut) + "\n")
+
+        inpuuut = dns.process_mailserver(response, inpuuut)
+
+        dns_flag = 1
+
+        response = dns.send_udp_message(dns.process_input(inpuuut, dns_flag, 0), "8.8.8.8", 53)
+
+        # process the response to extract the information
+
+        self.text.insert(END, dns.process_response_ipv4(response, 1, dns.process_input(inpuuut, dns_flag, 0)) + "\n")
+
+        response = dns.send_udp_message(dns.process_input(inpuuut, dns_flag, 1), "8.8.8.8", 53)
+
+        # process the response to extract the information
+
+        self.text.insert(END, dns.process_response_ipv4(response, 0, dns.process_input(inpuuut, dns_flag, 1)) + "\n")
+
+
 
 
     def send_ipv4(self):
@@ -122,7 +140,7 @@ class Form:
         response = dns.send_udp_message(dns.process_input(inpuuut, dns_flag, 0), "8.8.8.8",
                                     53)  # "2001:4860:4860::8888" ipv6 server
 
-        self.text.insert(END, dns.process_host_name_reverse(response) + "\n")
+        self.text.insert(END, "\n" + dns.process_host_name_reverse(response) + "\n")
 
 
 def main():            
